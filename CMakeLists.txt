@@ -3,8 +3,8 @@ message("Using toolchain file ${CMAKE_TOOLCHAIN_FILE}.")
 
 # -------------------------------------------------- Setup project ----------------------------------------------------
 project(
-  PluginName
-  VERSION 0.0.1
+  AutoHorse
+  VERSION 1.0.0
   LANGUAGES CXX
 )
 
@@ -42,7 +42,7 @@ find_path(SIMPLEINI_INCLUDE_DIRS SimpleIni.h)
 # -------------------------------------------------- Setup DLL --------------------------------------------------------
 add_commonlibsse_plugin(
   ${PROJECT_NAME}
-  AUTHOR AuthorName
+  AUTHOR Enneal
   SOURCES ${sources}
 )
 
@@ -108,3 +108,4 @@ set_property(
   TARGET ${PROJECT_NAME}
   APPEND PROPERTY ADDITIONAL_CLEAN_FILES ${OUTPUT_DLLS} ${OUTPUT_PDBS}
 )
+
