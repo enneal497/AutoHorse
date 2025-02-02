@@ -1,5 +1,6 @@
 #include "Events.h"
 
+
 namespace Events
 {
     RE::BSEventNotifyControl EquipEventHandler::ProcessEvent(const RE::TESEquipEvent* a_event, RE::BSTEventSource<RE::TESEquipEvent>* a_eventSource) noexcept
