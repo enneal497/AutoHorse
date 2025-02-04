@@ -1,5 +1,5 @@
 #include "InputEventHandler.h"
-#include "QuestHandler.h"
+#include "MarkerHandler.h"
 #include "Settings.h"
 
 namespace AutoHorse {
@@ -32,7 +32,7 @@ namespace AutoHorse {
         if (!player || !player->Is3DLoaded()) {
             return RE::BSEventNotifyControl::kContinue;
         }
-        
+
 
         for (auto event = *a_event; event; event = event->next) {
             if (const auto button = event->AsButtonEvent(); button) {
@@ -60,22 +60,25 @@ namespace AutoHorse {
                     if (key == Settings::ReturnControls(KeyType::Activate)) {
                         // Start autopilot
                         logger::info("Start autopilot");
-                        //QuestHandler::GetMarker();
+                        MarkerHandler::GetMarker();
 
-                    } else if (key == Settings::ReturnControls(KeyType::Dismount)) {
+                    }
+                    else if (key == Settings::ReturnControls(KeyType::Dismount)) {
                         // Stop autopilot and dismount
                         logger::info("Stop autopilot and dismount");
 
-                    } else if (key == Settings::ReturnControls(KeyType::Forward) || key == Settings::ReturnControls(KeyType::Back)) {
+                    }
+                    else if (key == Settings::ReturnControls(KeyType::Forward) || key == Settings::ReturnControls(KeyType::Back)) {
                         // Stop autopilot
                         logger::info("Stop autopilot");
 
-                    } else if (key == Settings::ReturnControls(KeyType::Left) || key == Settings::ReturnControls(KeyType::Right)) {
+                    }
+                    else if (key == Settings::ReturnControls(KeyType::Left) || key == Settings::ReturnControls(KeyType::Right)) {
                         // Pause autopilot
                         logger::info("Pause autopilot");
 
                     }
-                    
+
                 }
 
             }
