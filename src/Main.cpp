@@ -1,5 +1,5 @@
 #include "InputEventHandler.h"
-#include "QuestHandler.h"
+#include "MarkerHandler.h"
 #include "Hooks.h"
 #include "Settings.h"
 
@@ -35,4 +35,3 @@ SKSEPluginLoad(const SKSE::LoadInterface* skse)
 
     return true;
 }
-
