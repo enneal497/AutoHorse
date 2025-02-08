@@ -23,6 +23,9 @@ namespace AutoHorse {
         static inline RE::TESQuest *controlQuest;
         static inline RE::TESGlobal *isReady;
 
+        static inline bool isPaused;
+        static inline bool isActive;
+
         InputEventHandler& operator=(const InputEventHandler&) = delete;
         InputEventHandler& operator=(InputEventHandler&&) = delete;
 
