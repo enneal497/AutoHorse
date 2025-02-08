@@ -3,11 +3,10 @@
 enum class KeyType
 {
     Forward,
-    Back,
     Left,
     Right,
     Activate,
-    Dismount,
+    Start,
 };
 
 class Settings
@@ -18,19 +17,24 @@ public:
 
     inline static bool debug_logging{};
 
-    inline static uint32_t kActivate{ 18 };
-    inline static uint32_t kDismount{ 1 };
-
     static uint32_t ReturnControls(KeyType keytype);
 
+    inline static std::string espName{ "AutoHorse.esp" };
+    inline static int questID{ 0x5900 };
+    inline static int globalID{ 0xAA04 };
+
 private:
+    //Retrieve at runtime
     inline static uint32_t ForwardKey{ 17 };
-    inline static uint32_t BackKey{ 31 };
     inline static uint32_t LeftKey{ 30 };
     inline static uint32_t RightKey{ 32 };
-
     inline static uint32_t ActivateKey{ 18 };
-    inline static uint32_t DismountKey{ 1 };
+
+    //Retrieve from INI
+    inline static uint32_t kStart{ 44 };
+
+    //Platform-dependent variables
+    inline static uint32_t StartKey;
 
     static void ReadUInt32Setting(CSimpleIniA& a_ini, const char* a_sectionName, const char* a_settingName, uint32_t& a_setting);
 };
