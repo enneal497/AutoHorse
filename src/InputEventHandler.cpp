@@ -50,10 +50,6 @@ namespace AutoHorse {
             if (dismount) {
                 //Dismount horse
                 const auto player = RE::PlayerCharacter::GetSingleton();
-                if (!player || !player->Is3DLoaded()) {
-                    return;
-                }
-
                 mount->ActivateRef(player, 0, mount->GetBaseObject(), 1, false);
             }
         }
