@@ -82,6 +82,7 @@ namespace AutoHorse {
             if (const auto button = event->AsButtonEvent(); button) {
                 const auto device = event->GetDevice();
 
+                Settings::GetMappedControls(device);
                 auto key = button->GetIDCode();
                 bool isPressed = button->IsPressed();
                 bool isHeld = button->IsHeld();
@@ -90,39 +91,62 @@ namespace AutoHorse {
                 if (isHeld == true) {
                     continue;
                 }
-                if (isPressed == false) {
-                    //Resume autopilot
-                }
 
                 //Get control map and compare against keypress event
-                Settings::GetMappedControls(device);
-                auto keyname = SKSE::InputMap::GetKeyName(key);
-
                 if (device == RE::INPUT_DEVICE::kKeyboard) {
-                    logger::info("key {}", keyname);
+                    //auto keyname = SKSE::InputMap::GetKeyName(key);
+                    //logger::info("key {}", keyname);
 
                     if (key == Settings::ReturnControls(KeyType::Start)) {
                         // Start autopilot
-                        logger::info("Start autopilot");
-                        StartAutopilot();
-
+                        if (isPressed == true) {
+                            logger::info("Start autopilot");
+                            StartAutopilot();
+                            isPaused = false;
+                            isActive = true;
+                            continue;
+                        }
                     }
                     else if (key == Settings::ReturnControls(KeyType::Activate)) {
                         // Stop autopilot and dismount
-                        logger::info("Stop autopilot and dismount");
-                        StopAutopilot(true, mount);
-
+                        if (isPressed && isActive) {
+                            logger::info("Stop autopilot and dismount");
+                            StopAutopilot(true, mount);
+                            isPaused = false;
+                            isActive = false;
+                            continue;
+                        }
                     }
                     else if (key == Settings::ReturnControls(KeyType::Forward)) {
                         // Stop autopilot
-                        logger::info("Stop autopilot");
-                        StopAutopilot(false, mount);
-
+                        if (isPressed && isActive) {
+                            logger::info("Stop autopilot");
+                            StopAutopilot(false, mount);
+                            isPaused = false;
+                            isActive = false;
+                            continue;
+                        }
                     }
                     else if (key == Settings::ReturnControls(KeyType::Left) || key == Settings::ReturnControls(KeyType::Right)) {
-                        // Pause autopilot
-                        logger::info("Pause autopilot");
-
+                        if (!isActive) {
+                            continue;
+                        }
+                        if (isPressed) {
+                            // Pause autopilot
+                            logger::info("Pause autopilot");
+                            StopAutopilot(false, mount);
+                            isPaused = true;
+                            continue;
+                        }
+                        else {
+                            //Resume autopilot
+                            logger::info("Resume autopilot");
+                            StartAutopilot();
+                            isPaused = false;
+                            continue;
+                        }
+                        
+                        
                     }
 
                 }
