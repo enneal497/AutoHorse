@@ -1,11 +1,13 @@
 #include "MarkerHandler.h"
+#include "Settings.h"
 
 namespace AutoHorse {
 
-    void MarkerHandler::GetMarker()
+    bool MarkerHandler::GetMarker()
     {
         auto player = RE::PlayerCharacter::GetSingleton();
         RE::ObjectRefHandle markerRef = REL::Module::IsVR() ? player->GetVRInfoRuntimeData()->playerMapMarker : player->GetInfoRuntimeData().playerMapMarker;
+
 
         if (!markerRef) {
             GetQuestMarker();
@@ -13,6 +15,9 @@ namespace AutoHorse {
         else {
             GetPlayerMarker(markerRef);
         }
+
+        //TEMP
+        return true;
 
     }
 
@@ -23,20 +28,31 @@ namespace AutoHorse {
 
         markerPosition = marker->GetPosition();
 
-        xPos = marker->GetPositionX();
-        yPos = marker->GetPositionY();
-        zPos = marker->GetPositionZ();
+        float xPos = marker->GetPositionX();
+        float yPos = marker->GetPositionY();
+        float zPos = marker->GetPositionZ();
 
         logger::info("xPos: {}", xPos);
         logger::info("yPos: {}", yPos);
         logger::info("zPos: {}", zPos);
 
-
+        //MoveTargetMarker();
     }
 
     //Get closest quest marker if available
     void MarkerHandler::GetQuestMarker()
     {
+        
+    }
+
+    void MarkerHandler::MoveTargetMarker()
+    {
+        //Replace with actual quest ID
+        RE::TESQuest* controlQuest = RE::TESDataHandler::GetSingleton()->LookupForm<RE::TESQuest>(Settings::questID, Settings::espName);
+
+        //auto alias = targetQuest->aliases[0];
+
+        //markerRef->data.location = markerPosition;
 
     }
 
