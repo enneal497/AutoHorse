@@ -22,6 +22,7 @@ public:
     inline static std::string espName{ "AutoHorse.esp" };
     inline static int questID{ 0x5900 };
     inline static int globalID{ 0xAA04 };
+    inline static int markerID{ 0xAA02 };
 
 private:
     //Retrieve at runtime
