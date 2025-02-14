@@ -20,9 +20,9 @@ public:
     static uint32_t ReturnControls(KeyType keytype);
 
     inline static std::string espName{ "AutoHorse.esp" };
-    inline static int questID{ 0x5900 };
-    inline static int globalID{ 0xAA04 };
-    inline static int markerID{ 0xAA02 };
+    inline static int questID{ 0x0800 };
+    inline static int g_dismountID{ 0x0805 };
+    inline static int markerID{ 0x0801 };
 
 private:
     //Retrieve at runtime
