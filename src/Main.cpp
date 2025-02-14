@@ -1,16 +1,17 @@
 #include "InputEventHandler.h"
 #include "MarkerHandler.h"
-#include "Hooks.h"
 #include "Settings.h"
+#include "Events.h"
+#include "Hooks.h"
 
 //SKSE Messages
 void Listener(SKSE::MessagingInterface::Message* message) noexcept
 {
     if (message->type == SKSE::MessagingInterface::kDataLoaded) {
         Settings::LoadSettings();
-        //Events::EquipEventHandler::Register();
         //Hooks::Install();
         AutoHorse::InputEventHandler::Register();
+        AutoHorse::CombatEventHandler::Register();
     }
 }
 
