@@ -1,15 +1,24 @@
 #include "Events.h"
+//#include "InputEventHandler.h"
 
-
-namespace Events
+namespace AutoHorse
 {
-    RE::BSEventNotifyControl EquipEventHandler::ProcessEvent(const RE::TESEquipEvent* a_event, RE::BSTEventSource<RE::TESEquipEvent>* a_eventSource) noexcept
+    RE::BSEventNotifyControl CombatEventHandler::ProcessEvent(const RE::TESCombatEvent* a_event, RE::BSTEventSource<RE::TESCombatEvent>* a_eventSource) noexcept
     {
+        UNREFERENCED_PARAMETER(a_eventSource);
+
         if (!a_event) {
             return RE::BSEventNotifyControl::kContinue;
         }
 
-        // Do stuff
+        auto InputSingleton = InputEventHandler::GetSingleton();
+        if (!InputSingleton->IsRunning() || static_cast<RE::Actor*>(a_event->targetActor.get()) != InputSingleton->mount.get())
+        {
+            return RE::BSEventNotifyControl::kContinue;
+        }
+
+        logger::info("Target is player mount");
+        InputEventHandler::ForceStopAutopilot();
 
         return RE::BSEventNotifyControl::kContinue;
     }
