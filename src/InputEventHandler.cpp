@@ -16,7 +16,7 @@ namespace AutoHorse {
             inputDeviceManager->AddEventSink(GetSingleton());
             logger::info("Event sink initialized.");
 
-            isReady = RE::TESDataHandler::GetSingleton()->LookupForm<RE::TESGlobal>(Settings::globalID, Settings::espName);
+            g_dismount = RE::TESDataHandler::GetSingleton()->LookupForm<RE::TESGlobal>(Settings::g_dismountID, Settings::espName);
             controlQuest = RE::TESDataHandler::GetSingleton()->LookupForm<RE::TESQuest>(Settings::questID, Settings::espName);
 
         }
@@ -39,20 +39,28 @@ namespace AutoHorse {
         bool markerReady = MarkerHandler::GetMarker();
         if (markerReady) {
             controlQuest->Start();
-            //SetStage(controlQuest, 0);
         }
 
     }
 
+    void InputEventHandler::ForceStopAutopilot() {
+        isPaused = false;
+        isActive = false;
+        StopAutopilot(false, InputEventHandler::GetSingleton()->mount);
+    }
+
     void InputEventHandler::StopAutopilot(bool dismount, RE::ActorPtr mount) {
         if (controlQuest->IsRunning()) {
+
+            g_dismount->value = static_cast<float>(dismount);
             controlQuest->Stop();
-            if (dismount) {
-                //Dismount horse
-                const auto player = RE::PlayerCharacter::GetSingleton();
-                mount->ActivateRef(player, 0, mount->GetBaseObject(), 1, false);
-            }
+            mount.reset();
         }
+    }
+
+    //Is player currently under AI control
+    bool InputEventHandler::IsRunning() {
+        return (isActive && InputEventHandler::GetSingleton()->mount);
     }
     
     RE::BSEventNotifyControl InputEventHandler::ProcessEvent(RE::InputEvent* const* a_event, RE::BSTEventSource<RE::InputEvent*>* a_eventSource) {
@@ -67,7 +75,10 @@ namespace AutoHorse {
             return RE::BSEventNotifyControl::kContinue;
         }
 
-        RE::NiPointer<RE::Actor> mount;
+        if (mount && mount.get()->IsDead() && isActive) {
+            ForceStopAutopilot();
+        }
+
         if (!(player->GetMount(mount))) {
             //logger::info("Not on mount");
             return RE::BSEventNotifyControl::kContinue;
