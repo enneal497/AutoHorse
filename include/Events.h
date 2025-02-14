@@ -1,10 +1,11 @@
 #pragma once
+#include "InputEventHandler.h"
 
-namespace Events
+namespace AutoHorse
 {
-    class EquipEventHandler final : public EventHandler<EquipEventHandler, RE::TESEquipEvent>
+    class CombatEventHandler final : public EventHandler<CombatEventHandler, RE::TESCombatEvent>
     {
     public:
-        RE::BSEventNotifyControl ProcessEvent(const RE::TESEquipEvent* a_event, RE::BSTEventSource<RE::TESEquipEvent>* a_eventSource) noexcept override;
+        RE::BSEventNotifyControl ProcessEvent(const RE::TESCombatEvent* a_event, RE::BSTEventSource<RE::TESCombatEvent>* a_eventSource) noexcept override;
     };
 } // namespace Events
