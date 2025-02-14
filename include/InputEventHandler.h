@@ -1,3 +1,4 @@
+#pragma once
 
 namespace AutoHorse {
 
@@ -7,6 +8,11 @@ namespace AutoHorse {
         static InputEventHandler* GetSingleton();
 
         static void Register();
+
+        static bool IsRunning();
+        static void ForceStopAutopilot();
+
+        RE::NiPointer<RE::Actor> mount;
 
     private:
         RE::BSEventNotifyControl ProcessEvent(RE::InputEvent* const* a_event, RE::BSTEventSource<RE::InputEvent*>* a_eventSource) override;
@@ -21,7 +27,8 @@ namespace AutoHorse {
         //static bool SetStage(RE::TESQuest *a_quest, std::uint16_t a_stage);
 
         static inline RE::TESQuest *controlQuest;
-        static inline RE::TESGlobal *isReady;
+        static inline RE::TESGlobal *g_isReady;
+        static inline RE::TESGlobal* g_dismount;
 
         static inline bool isPaused;
         static inline bool isActive;
