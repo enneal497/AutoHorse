@@ -1,6 +1,7 @@
 #include "InputEventHandler.h"
 #include "MarkerHandler.h"
 #include "Settings.h"
+#include "Utility.h"
 
 namespace AutoHorse {
 
@@ -16,7 +17,9 @@ namespace AutoHorse {
             inputDeviceManager->AddEventSink(GetSingleton());
             logger::info("Event sink initialized.");
 
+            g_tutorial = RE::TESDataHandler::GetSingleton()->LookupForm<RE::TESGlobal>(Settings::g_tutorialID, Settings::espName);
             g_dismount = RE::TESDataHandler::GetSingleton()->LookupForm<RE::TESGlobal>(Settings::g_dismountID, Settings::espName);
+            g_speed = RE::TESDataHandler::GetSingleton()->LookupForm<RE::TESGlobal>(Settings::g_speedID, Settings::espName);
             controlQuest = RE::TESDataHandler::GetSingleton()->LookupForm<RE::TESQuest>(Settings::questID, Settings::espName);
 
         }
@@ -25,22 +28,15 @@ namespace AutoHorse {
         }
     }
 
-    //NOT CURRENTLY IN USE
-    /*
-    bool InputEventHandler::SetStage(RE::TESQuest* a_quest, std::uint16_t a_stage)
-    {
-        using func_t = decltype(&SetStage);
-        REL::Relocation<func_t> func{ RELOCATION_ID(24482, 25004) };
-        return func(a_quest, a_stage);
-    }
-    */
-
     void InputEventHandler::StartAutopilot() {
-        bool markerReady = MarkerHandler::GetMarker();
-        if (markerReady) {
-            controlQuest->Start();
+        if (!MarkerHandler::GetMarker()) {
+            return;
         }
-
+        isSprinting = false;
+        isWalking = false;
+        g_speed->value = static_cast<float>(2);
+        g_tutorial->value = static_cast<float>(1);
+        controlQuest->Start();
     }
 
     void InputEventHandler::ForceStopAutopilot() {
@@ -51,7 +47,6 @@ namespace AutoHorse {
 
     void InputEventHandler::StopAutopilot(bool dismount, RE::ActorPtr mount) {
         if (controlQuest->IsRunning()) {
-
             g_dismount->value = static_cast<float>(dismount);
             controlQuest->Stop();
             mount.reset();
@@ -75,6 +70,10 @@ namespace AutoHorse {
             return RE::BSEventNotifyControl::kContinue;
         }
 
+        if (a_event[0]) {
+            Settings::GetMappedControls(a_event[0]->GetDevice());
+        }
+
         if (mount && mount.get()->IsDead() && isActive) {
             ForceStopAutopilot();
         }
@@ -84,12 +83,11 @@ namespace AutoHorse {
             return RE::BSEventNotifyControl::kContinue;
         }
 
-
         for (auto event = *a_event; event; event = event->next) {
             if (const auto button = event->AsButtonEvent(); button) {
                 const auto device = event->GetDevice();
 
-                Settings::GetMappedControls(device);
+                //Settings::GetMappedControls(device);
                 auto key = button->GetIDCode();
                 bool isPressed = button->IsPressed();
                 bool isHeld = button->IsHeld();
@@ -154,6 +152,36 @@ namespace AutoHorse {
                         }
                         
                         
+                    }
+                    else if (key == Settings::ReturnControls(KeyType::Sprint)) {
+                        //Toggle sprint
+                        if (isPressed && !isWalking) {
+                            logger::info("Start sprinting");
+                            isSprinting = !isSprinting;
+                            g_speed->value = static_cast<float>((isSprinting) ? 3 : 2);
+                            mount.get()->EvaluatePackage(true, false);
+                            player->EvaluatePackage(true, false);
+                        }
+                    }
+                    else if (key == Settings::ReturnControls(KeyType::Walk)) {
+                        //Toggle walk
+                        logger::info("trying to toggle walk");
+                        if (isPressed && !isSprinting) {
+                            isWalking = !isWalking;
+                            g_speed->value = static_cast<float>((isWalking) ? 1 : 2);
+                            mount.get()->EvaluatePackage(true, false);
+                            player->EvaluatePackage(true, false);
+                        }
+                    }
+                    else if (key == Settings::ReturnControls(KeyType::Shift)) {
+                        //Hold walk
+                        logger::info("trying to hold walk");
+                        if (!isSprinting) {
+                            isWalking = !isWalking;
+                            g_speed->value = static_cast<float>((isWalking) ? 1 : 2);
+                            mount.get()->EvaluatePackage(true, false);
+                            player->EvaluatePackage(true, false);
+                        }
                     }
 
                 }
