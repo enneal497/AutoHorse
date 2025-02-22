@@ -3,9 +3,9 @@
 
 namespace AutoHorse
 {
-    class CombatEventHandler final : public EventHandler<CombatEventHandler, RE::TESCombatEvent>
+    class ActivateEventHandler final : public EventHandler<ActivateEventHandler, RE::TESActivateEvent>
     {
     public:
-        RE::BSEventNotifyControl ProcessEvent(const RE::TESCombatEvent* a_event, RE::BSTEventSource<RE::TESCombatEvent>* a_eventSource) noexcept override;
+        RE::BSEventNotifyControl ProcessEvent(const RE::TESActivateEvent* a_event, RE::BSTEventSource<RE::TESActivateEvent>* a_eventSource) noexcept override;
     };
 } // namespace Events
