@@ -1,24 +1,23 @@
 #include "Events.h"
-//#include "InputEventHandler.h"
+#include "Utility.h"
 
 namespace AutoHorse
 {
-    RE::BSEventNotifyControl CombatEventHandler::ProcessEvent(const RE::TESCombatEvent* a_event, RE::BSTEventSource<RE::TESCombatEvent>* a_eventSource) noexcept
+    RE::BSEventNotifyControl ActivateEventHandler::ProcessEvent(const RE::TESActivateEvent* a_event, RE::BSTEventSource<RE::TESActivateEvent>* a_eventSource) noexcept
     {
         UNREFERENCED_PARAMETER(a_eventSource);
 
         if (!a_event) {
             return RE::BSEventNotifyControl::kContinue;
         }
-
-        auto InputSingleton = InputEventHandler::GetSingleton();
-        if (!InputSingleton->IsRunning() || static_cast<RE::Actor*>(a_event->targetActor.get()) != InputSingleton->mount.get())
-        {
+        if (a_event->actionRef.get() != RE::PlayerCharacter::GetSingleton()) {
             return RE::BSEventNotifyControl::kContinue;
         }
 
-        logger::info("Target is player mount");
-        InputEventHandler::ForceStopAutopilot();
+        if (a_event->objectActivated.get()->GetBaseObject()->HasKeywordByEditorID("ActorTypeHorse")) {
+            logger::info("Player activated horse");
+            Utility::ShowPrompt();
+        }
 
         return RE::BSEventNotifyControl::kContinue;
     }
