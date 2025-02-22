@@ -21,6 +21,11 @@ void Settings::LoadSettings() noexcept
 
     debug_logging = ini.GetBoolValue("Log", "Debug");
 
+    auto bShowTutorial = ini.GetBoolValue("General", "bShowTutorial");
+    if (bShowTutorial == false) {
+        RE::TESDataHandler::GetSingleton()->LookupForm<RE::TESGlobal>(g_tutorialID, espName)->value = 1;
+    }
+
     //Keyboard
     ReadUInt32Setting(ini, "Keyboard", "StartKey", (uint32_t&)kStart);
 
@@ -44,6 +49,10 @@ void Settings::GetMappedControls(RE::INPUT_DEVICE device)
     RightKey = controlmap->GetMappedKey("Strafe Right", device);
     ActivateKey = controlmap->GetMappedKey("Activate", device);
 
+    SprintKey = controlmap->GetMappedKey("Sprint", device);
+    WalkKey = controlmap->GetMappedKey("Toggle Always Run", device);
+    ShiftKey = controlmap->GetMappedKey("Run", device);
+
     //Change to allow for other devices
     StartKey = kStart;
 
@@ -62,6 +71,12 @@ uint32_t Settings::ReturnControls(KeyType keytype)
         return ActivateKey;
     case KeyType::Start:
         return StartKey;
+    case KeyType::Sprint:
+        return SprintKey;
+    case KeyType::Walk:
+        return WalkKey;
+    case KeyType::Shift:
+        return ShiftKey;
     default:
         return NULL;
     }
