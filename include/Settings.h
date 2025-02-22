@@ -7,6 +7,9 @@ enum class KeyType
     Right,
     Activate,
     Start,
+    Sprint,
+    Walk,
+    Shift,
 };
 
 class Settings
@@ -22,6 +25,8 @@ public:
     inline static std::string espName{ "AutoHorse.esp" };
     inline static int questID{ 0x0800 };
     inline static int g_dismountID{ 0x0805 };
+    inline static int g_speedID{ 0x0808 };
+    inline static int g_tutorialID{ 0x809 };
     inline static int markerID{ 0x0801 };
 
 private:
@@ -30,6 +35,10 @@ private:
     inline static uint32_t LeftKey{ 30 };
     inline static uint32_t RightKey{ 32 };
     inline static uint32_t ActivateKey{ 18 };
+    //Speed
+    inline static uint32_t SprintKey{ 56 };
+    inline static uint32_t WalkKey{ 58 };
+    inline static uint32_t ShiftKey{ 42 };
 
     //Retrieve from INI
     inline static uint32_t kStart{ 44 };
