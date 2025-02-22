@@ -1,6 +1,7 @@
 #include "InputEventHandler.h"
 #include "MarkerHandler.h"
 #include "Settings.h"
+#include "Utility.h"
 #include "Events.h"
 #include "Hooks.h"
 
@@ -11,7 +12,7 @@ void Listener(SKSE::MessagingInterface::Message* message) noexcept
         Settings::LoadSettings();
         //Hooks::Install();
         AutoHorse::InputEventHandler::Register();
-        AutoHorse::CombatEventHandler::Register();
+        AutoHorse::ActivateEventHandler::Register();
     }
 }
 
