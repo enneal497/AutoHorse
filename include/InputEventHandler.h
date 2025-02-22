@@ -26,12 +26,16 @@ namespace AutoHorse {
         static void StopAutopilot(bool dismount, RE::ActorPtr mount);
         //static bool SetStage(RE::TESQuest *a_quest, std::uint16_t a_stage);
 
-        static inline RE::TESQuest *controlQuest;
-        static inline RE::TESGlobal *g_isReady;
+        static inline RE::TESQuest* controlQuest;
+        static inline RE::TESGlobal* g_tutorial;
         static inline RE::TESGlobal* g_dismount;
+        static inline RE::TESGlobal* g_speed;
 
         static inline bool isPaused;
         static inline bool isActive;
+
+        static inline bool isWalking{ false };
+        static inline bool isSprinting{ false };
 
         InputEventHandler& operator=(const InputEventHandler&) = delete;
         InputEventHandler& operator=(InputEventHandler&&) = delete;
