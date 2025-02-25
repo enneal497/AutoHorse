@@ -26,15 +26,14 @@ void Settings::LoadSettings() noexcept
         RE::TESDataHandler::GetSingleton()->LookupForm<RE::TESGlobal>(g_tutorialID, espName)->value = 1;
     }
 
-    //Keyboard
-    ReadUInt32Setting(ini, "Keyboard", "StartKey", (uint32_t&)kStart);
+    //StartKey
+    ReadUInt32Setting(ini, "Keyboard", "StartKey", (uint32_t&)KStart);
+    ReadUInt32Setting(ini, "GamePad", "StartKey", (uint32_t&)GStart);
 
     if (debug_logging) {
         spdlog::set_level(spdlog::level::debug);
         logger::debug("Debug logging enabled");
     }
-
-    // Load settings
 
     logger::info("Loaded settings");
     logger::info("");
@@ -54,7 +53,12 @@ void Settings::GetMappedControls(RE::INPUT_DEVICE device)
     ShiftKey = controlmap->GetMappedKey("Run", device);
 
     //Change to allow for other devices
-    StartKey = kStart;
+    if (device == RE::INPUT_DEVICE::kKeyboard) {
+        StartKey = KStart;
+    }
+    else if (device == RE::INPUT_DEVICE::kGamepad) {
+        StartKey = GStart;
+    }
 
 }
 

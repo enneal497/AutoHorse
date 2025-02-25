@@ -1,5 +1,6 @@
 #include "Events.h"
 #include "Utility.h"
+#include "InputEventHandler.h"
 
 namespace AutoHorse
 {
@@ -21,4 +22,5 @@ namespace AutoHorse
 
         return RE::BSEventNotifyControl::kContinue;
     }
+
 } // namespace Events

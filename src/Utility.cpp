@@ -1,6 +1,7 @@
 #include "MarkerHandler.h"
 #include "Utility.h"
 #include "Settings.h"
+#include "Events.h"
 
 namespace AutoHorse {
 
@@ -8,6 +9,7 @@ namespace AutoHorse {
     {
         auto g_tutorial = RE::TESDataHandler::GetSingleton()->LookupForm<RE::TESGlobal>(Settings::g_tutorialID, Settings::espName);
         if (g_tutorial->value == 1) {
+            AutoHorse::ActivateEventHandler::Deregister();
             return;
         }
 

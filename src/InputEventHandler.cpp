@@ -11,11 +11,11 @@ namespace AutoHorse {
     }
 
     void InputEventHandler::Register() {
-        logger::info("Initializing event sink...");
+        logger::info("Initializing InputEventHandler event sink...");
         const auto inputDeviceManager = RE::BSInputDeviceManager::GetSingleton();
         if (inputDeviceManager) {
             inputDeviceManager->AddEventSink(GetSingleton());
-            logger::info("Event sink initialized.");
+            logger::info("InputEventHandler event sink initialized.");
 
             g_tutorial = RE::TESDataHandler::GetSingleton()->LookupForm<RE::TESGlobal>(Settings::g_tutorialID, Settings::espName);
             g_dismount = RE::TESDataHandler::GetSingleton()->LookupForm<RE::TESGlobal>(Settings::g_dismountID, Settings::espName);
@@ -24,7 +24,7 @@ namespace AutoHorse {
 
         }
         else {
-            stl::report_and_fail("Failed to initialize event sink.");
+            stl::report_and_fail("Failed to initialize InputEventHandler event sink.");
         }
     }
 
@@ -49,6 +49,7 @@ namespace AutoHorse {
         if (controlQuest->IsRunning()) {
             g_dismount->value = static_cast<float>(dismount);
             controlQuest->Stop();
+            
             mount.reset();
         }
     }
@@ -67,11 +68,8 @@ namespace AutoHorse {
         }
         const auto player = RE::PlayerCharacter::GetSingleton();
         if (!player || !player->Is3DLoaded()) {
+            
             return RE::BSEventNotifyControl::kContinue;
-        }
-
-        if (a_event[0]) {
-            Settings::GetMappedControls(a_event[0]->GetDevice());
         }
 
         if (mount && mount.get()->IsDead() && isActive) {
@@ -83,11 +81,15 @@ namespace AutoHorse {
             return RE::BSEventNotifyControl::kContinue;
         }
 
+        if (a_event[0]) {
+            Settings::GetMappedControls(a_event[0]->GetDevice());
+        }
+
         for (auto event = *a_event; event; event = event->next) {
             if (const auto button = event->AsButtonEvent(); button) {
                 const auto device = event->GetDevice();
 
-                //Settings::GetMappedControls(device);
+                Settings::GetMappedControls(device);
                 auto key = button->GetIDCode();
                 bool isPressed = button->IsPressed();
                 bool isHeld = button->IsHeld();
@@ -97,32 +99,47 @@ namespace AutoHorse {
                     continue;
                 }
 
+                auto keyname = SKSE::InputMap::GetKeyName(key);
+                logger::info("key {}", keyname);
+                logger::info("key DXScanCode: {}", key);
+
+                logger::info("Expected start key: {}", Settings::ReturnControls(KeyType::Start));
+
+                if (key == Settings::ReturnControls(KeyType::Start)) {
+                    // Start autopilot
+                    if (isPressed == true) {
+                        logger::info("Start autopilot");
+                        StartAutopilot();
+                        isPaused = false;
+                        isActive = true;
+                        continue;
+                    }
+                }
+                else if (key == Settings::ReturnControls(KeyType::Activate)) {
+                    // Stop autopilot and dismount
+                    if (isPressed && isActive) {
+                        logger::info("Stop autopilot and dismount");
+                        StopAutopilot(true, mount);
+                        isPaused = false;
+                        isActive = false;
+                        continue;
+                    }
+                }
+                else if (key == Settings::ReturnControls(KeyType::Sprint)) {
+                    //Toggle sprint
+                    if (isPressed && !isWalking) {
+                        logger::info("Start sprinting");
+                        isSprinting = !isSprinting;
+                        g_speed->value = static_cast<float>((isSprinting) ? 3 : 2);
+                        mount.get()->EvaluatePackage(true, false);
+                        player->EvaluatePackage(true, false);
+                    }
+                }
+
                 //Get control map and compare against keypress event
                 if (device == RE::INPUT_DEVICE::kKeyboard) {
-                    //auto keyname = SKSE::InputMap::GetKeyName(key);
-                    //logger::info("key {}", keyname);
 
-                    if (key == Settings::ReturnControls(KeyType::Start)) {
-                        // Start autopilot
-                        if (isPressed == true) {
-                            logger::info("Start autopilot");
-                            StartAutopilot();
-                            isPaused = false;
-                            isActive = true;
-                            continue;
-                        }
-                    }
-                    else if (key == Settings::ReturnControls(KeyType::Activate)) {
-                        // Stop autopilot and dismount
-                        if (isPressed && isActive) {
-                            logger::info("Stop autopilot and dismount");
-                            StopAutopilot(true, mount);
-                            isPaused = false;
-                            isActive = false;
-                            continue;
-                        }
-                    }
-                    else if (key == Settings::ReturnControls(KeyType::Forward)) {
+                    if (key == Settings::ReturnControls(KeyType::Forward)) {
                         // Stop autopilot
                         if (isPressed && isActive) {
                             logger::info("Stop autopilot");
@@ -153,16 +170,6 @@ namespace AutoHorse {
                         
                         
                     }
-                    else if (key == Settings::ReturnControls(KeyType::Sprint)) {
-                        //Toggle sprint
-                        if (isPressed && !isWalking) {
-                            logger::info("Start sprinting");
-                            isSprinting = !isSprinting;
-                            g_speed->value = static_cast<float>((isSprinting) ? 3 : 2);
-                            mount.get()->EvaluatePackage(true, false);
-                            player->EvaluatePackage(true, false);
-                        }
-                    }
                     else if (key == Settings::ReturnControls(KeyType::Walk)) {
                         //Toggle walk
                         logger::info("trying to toggle walk");
@@ -186,6 +193,44 @@ namespace AutoHorse {
 
                 }
 
+            }
+            else if (const auto thumbstick = event->AsThumbstickEvent(); thumbstick) {
+                if (!thumbstick->IsLeft()) {
+                    return RE::BSEventNotifyControl::kContinue;
+                }
+                auto x = thumbstick->xValue;
+                auto y = thumbstick->yValue;
+
+                logger::info("x: {}", x);
+                logger::info("y: {}", y);
+
+                if (abs(y) > Settings::thumbstickThreshold) {
+                    // Stop autopilot
+                    if (isActive) {
+                        logger::info("Stop autopilot");
+                        StopAutopilot(false, mount);
+                        isPaused = false;
+                        isActive = false;
+                        continue;
+                    }
+                }
+                if (!isActive) {
+                    continue;
+                }
+                if (abs(x) > Settings::thumbstickThreshold) {
+                    // Pause autopilot
+                    logger::info("Pause autopilot");
+                    StopAutopilot(false, mount);
+                    isPaused = true;
+                    continue;
+                }
+                else if (isPaused) {
+                    //Resume autopilot
+                    logger::info("Resume autopilot");
+                    StartAutopilot();
+                    isPaused = false;
+                    continue;
+                }
             }
         }
         return RE::BSEventNotifyControl::kContinue;
