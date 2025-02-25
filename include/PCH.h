@@ -150,6 +150,21 @@ public:
         return std::addressof(handler);
     }
 
+    static constexpr auto Deregister() noexcept
+    {
+        using TEventSource = RE::BSTEventSource<TEvent>;
+
+        const std::string dirty_name{ typeid(TEvent).name() };
+        const std::regex  p{ "class |struct |RE::|SKSE::| * __ptr64" };
+        const auto        name{ std::regex_replace(dirty_name, p, "") };
+
+        if constexpr (std::is_base_of_v<TEventSource, RE::ScriptEventSourceHolder>) {
+            const auto holder{ RE::ScriptEventSourceHolder::GetSingleton() };
+            holder->RemoveEventSink(Get());
+            logger::info("Removed {} handler", name);
+        }
+    }
+
     static constexpr auto Register() noexcept
     {
         using TEventSource = RE::BSTEventSource<TEvent>;

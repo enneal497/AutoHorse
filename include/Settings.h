@@ -29,6 +29,8 @@ public:
     inline static int g_tutorialID{ 0x809 };
     inline static int markerID{ 0x0801 };
 
+    inline static float thumbstickThreshold{ 0.5 };
+
 private:
     //Retrieve at runtime
     inline static uint32_t ForwardKey{ 17 };
@@ -41,7 +43,8 @@ private:
     inline static uint32_t ShiftKey{ 42 };
 
     //Retrieve from INI
-    inline static uint32_t kStart{ 44 };
+    inline static uint32_t KStart{ 44 };
+    inline static uint32_t GStart{ 1 };
 
     //Platform-dependent variables
     inline static uint32_t StartKey;

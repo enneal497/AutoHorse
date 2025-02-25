@@ -8,4 +8,5 @@ namespace AutoHorse
     public:
         RE::BSEventNotifyControl ProcessEvent(const RE::TESActivateEvent* a_event, RE::BSTEventSource<RE::TESActivateEvent>* a_eventSource) noexcept override;
     };
+
 } // namespace Events
