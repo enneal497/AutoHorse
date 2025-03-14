@@ -6,6 +6,7 @@ namespace AutoHorse {
     inline RE::NiPoint3 GetRealPosition(const RE::TESObjectREFR* a_objRef)
     {
         RE::NiPoint3 position = a_objRef->GetPosition();
+        
         if (const RE::TESWorldSpace* worldSpace = a_objRef->GetWorldspace())
         {
             RE::NiPoint3 worldSpaceOffset{ worldSpace->worldMapOffsetData.mapOffsetX,
@@ -13,6 +14,7 @@ namespace AutoHorse {
                                                   worldSpace->worldMapOffsetData.mapOffsetZ };
             position += worldSpaceOffset * worldSpace->worldMapOffsetData.mapScale;
         }
+        
         return position;
     }
 
@@ -54,6 +56,7 @@ namespace AutoHorse {
         }
         else {
             logger::info("Ref found");
+            ref->MoveTo(RE::PlayerCharacter::GetSingleton()->AsReference());
             ref->data.location = markerPos;
             ref->Update3DPosition(true);
             return true;

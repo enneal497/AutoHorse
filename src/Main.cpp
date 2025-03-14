@@ -10,9 +10,10 @@ void Listener(SKSE::MessagingInterface::Message* message) noexcept
 {
     if (message->type == SKSE::MessagingInterface::kDataLoaded) {
         Settings::LoadSettings();
-        //Hooks::Install();
+
         AutoHorse::InputEventHandler::Register();
         AutoHorse::ActivateEventHandler::Register();
+        AutoHorse::CellEventHandler::Register();
     }
 }
 
