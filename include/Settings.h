@@ -10,15 +10,15 @@ enum class KeyType
     Sprint,
     Walk,
     Shift,
+    AutoMoveKey,
+    CameraMod,
 };
 
 class Settings
 {
 public:
     static void LoadSettings() noexcept;
-    static void GetMappedControls(RE::INPUT_DEVICE device);
-
-    inline static bool debug_logging{};
+    static void GetMappedControls(const RE::INPUT_DEVICE &device);
 
     static uint32_t ReturnControls(KeyType keytype);
 
@@ -30,6 +30,8 @@ public:
     inline static int markerID{ 0x0801 };
 
     inline static float thumbstickThreshold{ 0.5 };
+    inline static bool bShowTutorial{ true };
+    inline static bool bDebugLogging{ false };
 
 private:
     //Retrieve at runtime
@@ -37,6 +39,7 @@ private:
     inline static uint32_t LeftKey{ 30 };
     inline static uint32_t RightKey{ 32 };
     inline static uint32_t ActivateKey{ 18 };
+    inline static uint32_t AutoMoveKey{ 46 };
     //Speed
     inline static uint32_t SprintKey{ 56 };
     inline static uint32_t WalkKey{ 58 };
@@ -45,9 +48,12 @@ private:
     //Retrieve from INI
     inline static uint32_t KStart{ 44 };
     inline static uint32_t GStart{ 1 };
+    inline static uint32_t GCameraMod{ 128 };
 
     //Platform-dependent variables
     inline static uint32_t StartKey;
 
     static void ReadUInt32Setting(CSimpleIniA& a_ini, const char* a_sectionName, const char* a_settingName, uint32_t& a_setting);
+    static void ReadBoolSetting(CSimpleIniA& a_ini, const char* a_sectionName, const char* a_settingName, bool& a_setting);
+    static void ReadFloatSetting(CSimpleIniA& a_ini, const char* a_sectionName, const char* a_settingName, float& a_setting);
 };

@@ -173,52 +173,21 @@ public:
         const std::regex  p{ "class |struct |RE::|SKSE::| * __ptr64" };
         const auto        name{ std::regex_replace(dirty_name, p, "") };
 
-        if constexpr (std::is_base_of_v<TEventSource, RE::BSInputDeviceManager>) {
-            const auto manager{ RE::BSInputDeviceManager::GetSingleton() };
-            manager->AddEventSink(Get());
-            logger::info("Registered {} handler", name);
-            logger::info("");
-            return;
-        }
-        else if constexpr (std::is_base_of_v<TEventSource, RE::UI>) {
-            const auto ui{ RE::UI::GetSingleton() };
-            ui->AddEventSink(Get());
-            logger::info("Registered {} handler", name);
-            logger::info("");
-            return;
-        }
-        else if constexpr (std::is_same_v<TEvent, SKSE::ActionEvent>) {
+        if constexpr (std::is_same_v<TEvent, SKSE::ActionEvent>) {
             SKSE::GetActionEventSource()->AddEventSink(Get());
-            logger::info("Registered {} handler", name);
-            logger::info("");
-            return;
-        }
-        else if constexpr (std::is_same_v<TEvent, SKSE::CameraEvent>) {
-            SKSE::GetCameraEventSource()->AddEventSink(Get());
-            logger::info("Registered {} handler", name);
-            logger::info("");
-            return;
-        }
-        else if constexpr (std::is_same_v<TEvent, SKSE::CrosshairRefEvent>) {
-            SKSE::GetCrosshairRefEventSource()->AddEventSink(Get());
-            logger::info("Registered {} handler", name);
-            logger::info("");
-            return;
-        }
-        else if constexpr (std::is_same_v<TEvent, SKSE::ModCallbackEvent>) {
-            SKSE::GetModCallbackEventSource()->AddEventSink(Get());
-            logger::info("Registered {} handler", name);
-            logger::info("");
-            return;
-        }
-        else if constexpr (std::is_same_v<TEvent, SKSE::NiNodeUpdateEvent>) {
-            SKSE::GetNiNodeUpdateEventSource()->AddEventSink(Get());
             logger::info("Registered {} handler", name);
             logger::info("");
             return;
         }
         else if constexpr (std::is_base_of_v<TEventSource, RE::ScriptEventSourceHolder>) {
             const auto holder{ RE::ScriptEventSourceHolder::GetSingleton() };
+            holder->AddEventSink(Get());
+            logger::info("Registered {} handler", name);
+            logger::info("");
+            return;
+        }
+        else if (name == "BGSActorCellEvent") {
+            const auto holder{ RE::PlayerCharacter::GetSingleton()->AsBGSActorCellEventSource() };
             holder->AddEventSink(Get());
             logger::info("Registered {} handler", name);
             logger::info("");

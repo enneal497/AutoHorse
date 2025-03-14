@@ -24,7 +24,6 @@ namespace AutoHorse {
 
         static void StartAutopilot();
         static void StopAutopilot(bool dismount, RE::ActorPtr mount);
-        //static bool SetStage(RE::TESQuest *a_quest, std::uint16_t a_stage);
 
         static inline RE::TESQuest* controlQuest;
         static inline RE::TESGlobal* g_tutorial;
