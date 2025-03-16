@@ -24,9 +24,9 @@ public:
 
     inline static std::string espName{ "AutoHorse.esp" };
     inline static int questID{ 0x0800 };
-    inline static int g_dismountID{ 0x0805 };
     inline static int g_speedID{ 0x0808 };
     inline static int g_tutorialID{ 0x809 };
+    inline static int g_isReadyID{ 0x803 };
     inline static int markerID{ 0x0801 };
 
     inline static float thumbstickThreshold{ 0.5 };

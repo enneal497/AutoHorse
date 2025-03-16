@@ -13,6 +13,7 @@ namespace AutoHorse {
         static void ForceStopAutopilot();
 
         RE::NiPointer<RE::Actor> mount;
+        static inline RE::TESQuest* controlQuest;
 
     private:
         RE::BSEventNotifyControl ProcessEvent(RE::InputEvent* const* a_event, RE::BSTEventSource<RE::InputEvent*>* a_eventSource) override;
@@ -23,11 +24,10 @@ namespace AutoHorse {
         ~InputEventHandler() override = default;
 
         static void StartAutopilot();
-        static void StopAutopilot(bool dismount, RE::ActorPtr mount);
+        static void StopAutopilot(bool dismount);
 
-        static inline RE::TESQuest* controlQuest;
+        static inline RE::TESGlobal* g_isReady;
         static inline RE::TESGlobal* g_tutorial;
-        static inline RE::TESGlobal* g_dismount;
         static inline RE::TESGlobal* g_speed;
 
         static inline bool isPaused;
