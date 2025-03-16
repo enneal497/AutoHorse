@@ -45,5 +45,27 @@ namespace AutoHorse {
             args[1].SetBoolean(false);
             hud->uiMovie->Invoke("_root.HUDMovieBaseInstance.ShowTutorialHintText", nullptr, args, 2);
         }
+
     }
+
+    
+    bool ForceRefToAlias(RE::TESQuest* a_quest, uint32_t a_aliasID, RE::TESObjectREFR* a_reference)
+    {
+        using func_t = decltype(&ForceRefToAlias);
+        REL::Relocation<func_t> func{ RELOCATION_ID(24523, 25052) };
+        return func(a_quest, a_aliasID, a_reference);
+    }
+    
+
+    void Utility::ForceMountToAlias(RE::ActorPtr a_actor)
+    {
+        auto* quest = InputEventHandler::GetSingleton()->controlQuest;
+        auto aliasID = quest->aliases[0]->aliasID;
+        auto* actorRef = a_actor->AsReference();
+
+        logger::info("Using alias {}", quest->aliases[0]->aliasName.c_str());
+        ForceRefToAlias(quest, aliasID, actorRef);
+
+    }
+
 }

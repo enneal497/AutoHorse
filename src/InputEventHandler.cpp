@@ -17,8 +17,8 @@ namespace AutoHorse {
             inputDeviceManager->AddEventSink(GetSingleton());
             logger::info("InputEventHandler event sink initialized.");
 
+            g_isReady = RE::TESDataHandler::GetSingleton()->LookupForm<RE::TESGlobal>(Settings::g_isReadyID, Settings::espName);
             g_tutorial = RE::TESDataHandler::GetSingleton()->LookupForm<RE::TESGlobal>(Settings::g_tutorialID, Settings::espName);
-            g_dismount = RE::TESDataHandler::GetSingleton()->LookupForm<RE::TESGlobal>(Settings::g_dismountID, Settings::espName);
             g_speed = RE::TESDataHandler::GetSingleton()->LookupForm<RE::TESGlobal>(Settings::g_speedID, Settings::espName);
             controlQuest = RE::TESDataHandler::GetSingleton()->LookupForm<RE::TESQuest>(Settings::questID, Settings::espName);
 
@@ -32,27 +32,57 @@ namespace AutoHorse {
         if (!MarkerHandler::GetMarker()) {
             return;
         }
+
+        auto *player = RE::PlayerCharacter::GetSingleton();
+        auto mount = InputEventHandler::GetSingleton()->mount;
+
         if (!isPaused) {
-            isSprinting = false;
+            isSprinting = player->GetPlayerRuntimeData().playerFlags.isSprinting;
             isWalking = false;
-            g_speed->value = static_cast<float>(2);
-            g_tutorial->value = static_cast<float>(1);
+            g_tutorial->value = 1.0f;
         }
+        if (RE::PlayerControls::GetSingleton()->data.autoMove) {
+            RE::PlayerControls::GetSingleton()->data.autoMove = false;
+        }
+
+        g_speed->value = static_cast<float>((isSprinting) ? 3 : 2);
         controlQuest->Start();
+        Utility::ForceMountToAlias(mount);
+
+        g_isReady->value = 1.0f;
+        mount.get()->SetPlayerControls(false);
+        player->SetAIDriven(true);
+        mount.get()->EvaluatePackage(true, false);
     }
 
     void InputEventHandler::ForceStopAutopilot() {
-        logger::info("Stop autopilot");
+        if (!isPaused && g_isReady->value == 0.0f) { return; }
         isPaused = false;
         isActive = false;
-        StopAutopilot(false, InputEventHandler::GetSingleton()->mount);
+        StopAutopilot(false);
     }
 
-    void InputEventHandler::StopAutopilot(bool dismount, RE::ActorPtr mount) {
+    void InputEventHandler::StopAutopilot(bool dismount) {
         if (controlQuest->IsRunning()) {
-            g_dismount->value = static_cast<float>(dismount);
+            auto* player = RE::PlayerCharacter::GetSingleton();
+            auto mount = InputEventHandler::GetSingleton()->mount;
+
+            if (!isPaused) {
+                player->GetPlayerRuntimeData().playerFlags.isSprinting = isSprinting;
+            }
+
+            g_isReady->value = 0.0f;
+            mount->SetPlayerControls(true);
+            mount->EnableAI(true);
+            mount->EvaluatePackage();
+            player->SetAIDriven(false);
+
+            if (dismount) {
+                mount->ActivateRef(player->AsReference(), 0, nullptr, 0, true);
+            }
+
             controlQuest->Stop();
-            
+
             mount.reset();
         }
     }
@@ -76,7 +106,7 @@ namespace AutoHorse {
             return RE::BSEventNotifyControl::kContinue;
         }
 
-        if (mount && mount.get()->IsDead() && isActive) {
+        if (isActive && mount && mount.get()->IsDead()) {
             ForceStopAutopilot();
         }
 
@@ -84,8 +114,7 @@ namespace AutoHorse {
             Settings::GetMappedControls(a_event[0]->GetDevice());
         }
 
-        if (!(player->GetMount(mount))) {
-            //logger::info("Not on mount");
+        if (!player->GetMount(mount)) {
             return RE::BSEventNotifyControl::kContinue;
         }
 
@@ -103,11 +132,6 @@ namespace AutoHorse {
                     continue;
                 }
 
-                //auto keyname = SKSE::InputMap::GetKeyName(key);
-                //logger::info("key {}", keyname);
-                //logger::info("key DXScanCode: {}", key);
-                //logger::info("Expected Start Key: {}", Settings::ReturnControls(KeyType::Start));
-
                 if (key == Settings::ReturnControls(KeyType::Start)) {
                     // Start autopilot
                     if (isPressed == true) {
@@ -116,12 +140,10 @@ namespace AutoHorse {
                             return RE::BSEventNotifyControl::kContinue;
                         }
                         if (player->GetCurrentPackage()) {
-                            logger::info("Player under AI control");
                             //Player under AI control
                             return RE::BSEventNotifyControl::kContinue;
                         }
                         
-                        logger::info("Start autopilot");
                         StartAutopilot();
                         isPaused = false;
                         isActive = true;
@@ -132,7 +154,7 @@ namespace AutoHorse {
                     // Stop autopilot and dismount
                     if (isPressed && isActive) {
                         logger::info("Stop autopilot and dismount");
-                        StopAutopilot(true, mount);
+                        StopAutopilot(true);
                         isPaused = false;
                         isActive = false;
                         return RE::BSEventNotifyControl::kContinue;
@@ -142,10 +164,10 @@ namespace AutoHorse {
                     //Toggle sprint
                     if (isPressed && !isWalking) {
                         isSprinting = !isSprinting;
-                        logger::info("Start sprinting? {}", isSprinting);
                         g_speed->value = static_cast<float>((isSprinting) ? 3 : 2);
                         mount.get()->EvaluatePackage(true, false);
                         player->EvaluatePackage(true, false);
+                        
                         continue;
                     }
                 }
@@ -166,14 +188,12 @@ namespace AutoHorse {
                         }
                         if (isPressed) {
                             // Pause autopilot
-                            logger::info("Pause autopilot");
-                            StopAutopilot(false, mount);
                             isPaused = true;
+                            StopAutopilot(false);
                             continue;
                         }
                         else if (isPaused) {
                             //Resume autopilot
-                            logger::info("Resume autopilot");
                             StartAutopilot();
                             isPaused = false;
                             continue;
@@ -181,7 +201,6 @@ namespace AutoHorse {
                     }
                     else if (key == Settings::ReturnControls(KeyType::Walk)) {
                         //Toggle walk
-                        logger::info("trying to toggle walk");
                         if (isPressed && !isSprinting) {
                             isWalking = !isWalking;
                             g_speed->value = static_cast<float>((isWalking) ? 1 : 2);
@@ -192,7 +211,6 @@ namespace AutoHorse {
                     }
                     else if (key == Settings::ReturnControls(KeyType::Shift)) {
                         //Hold walk
-                        logger::info("trying to hold walk");
                         if (!isSprinting) {
                             isWalking = !isWalking;
                             g_speed->value = static_cast<float>((isWalking) ? 1 : 2);
@@ -224,22 +242,17 @@ namespace AutoHorse {
 
                 if (abs(y) > Settings::thumbstickThreshold) {
                     // Stop autopilot
-                    logger::info("Stop autopilot");
-                    StopAutopilot(false, mount);
-                    isPaused = false;
-                    isActive = false;
+                    ForceStopAutopilot();
                     continue;
                 }
                 if (abs(x) > Settings::thumbstickThreshold) {
                     // Pause autopilot
-                    logger::info("Pause autopilot");
-                    StopAutopilot(false, mount);
+                    StopAutopilot(false);
                     isPaused = true;
                     continue;
                 }
                 else if (isPaused) {
                     //Resume autopilot
-                    logger::info("Resume autopilot");
                     StartAutopilot();
                     isPaused = false;
                     continue;

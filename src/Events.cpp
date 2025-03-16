@@ -23,7 +23,7 @@ void checkMarkers() {
     auto player = RE::PlayerCharacter::GetSingleton();
     auto& markers = player->GetPlayerRuntimeData().currentMapMarkers;
 
-    float sDist = 5000.0f;
+    float sDist = 4000.0f;
     if (markers.size() == 0) {
         return;
     }
@@ -85,5 +85,7 @@ namespace AutoHorse
 
         return RE::BSEventNotifyControl::kContinue;
     }
+
+    
 
 } // namespace Events

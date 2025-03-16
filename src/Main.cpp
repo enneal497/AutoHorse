@@ -16,6 +16,9 @@ void Listener(SKSE::MessagingInterface::Message* message) noexcept
         AutoHorse::ActivateEventHandler::Register();
         AutoHorse::CellEventHandler::Register();
     }
+    else if (message->type == SKSE::MessagingInterface::kSaveGame) {
+        AutoHorse::InputEventHandler::GetSingleton()->ForceStopAutopilot();
+    }
 }
 
 SKSEPluginLoad(const SKSE::LoadInterface* skse)
