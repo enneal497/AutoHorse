@@ -1,9 +1,9 @@
-# CommonLibSSE-NG Plugin Template
+# AutoHorse
 
 ## Setup
 
 - Clone the repository
-- Run `cd CLibNGPluginTemplate`
+- Run `cd AutoHorse`
 - If using Visual Studio, set the formatter path to the `clang-format.exe` included in your LLVM install:
   - Open Visual Studio settings
   - Navigate to `Tools > Options > Text editor > C++ > Formatting`
