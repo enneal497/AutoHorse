@@ -3,6 +3,7 @@
 enum class KeyType
 {
     Forward,
+    Back,
     Left,
     Right,
     Activate,
@@ -33,9 +34,12 @@ public:
     inline static bool bShowTutorial{ true };
     inline static bool bDebugLogging{ false };
 
+    inline static RE::INPUT_DEVICE cDevice;
+
 private:
     //Retrieve at runtime
     inline static uint32_t ForwardKey{ 17 };
+    inline static uint32_t BackKey{ 31 };
     inline static uint32_t LeftKey{ 30 };
     inline static uint32_t RightKey{ 32 };
     inline static uint32_t ActivateKey{ 18 };
