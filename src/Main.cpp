@@ -11,7 +11,12 @@ void Listener(SKSE::MessagingInterface::Message* message) noexcept
     if (message->type == SKSE::MessagingInterface::kDataLoaded) {
         Settings::LoadSettings();
 
-        Hooks::Install();
+        auto dataHandler = RE::TESDataHandler::GetSingleton();
+        if (!dataHandler->LookupModByName("AutoMove.esl"))
+        {
+            Hooks::Install();
+        }
+
         AutoHorse::InputEventHandler::Register();
         AutoHorse::ActivateEventHandler::Register();
         AutoHorse::CellEventHandler::Register();

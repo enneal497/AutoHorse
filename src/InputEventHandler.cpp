@@ -37,7 +37,6 @@ namespace AutoHorse {
         auto mount = InputEventHandler::GetSingleton()->mount;
 
         if (!isPaused) {
-            isSprinting = player->GetPlayerRuntimeData().playerFlags.isSprinting;
             isWalking = false;
             g_tutorial->value = 1.0f;
         }
@@ -45,7 +44,7 @@ namespace AutoHorse {
             RE::PlayerControls::GetSingleton()->data.autoMove = false;
         }
 
-        g_speed->value = static_cast<float>((isSprinting) ? 3 : 2);
+        g_speed->value = static_cast<float>(2);
         controlQuest->Start();
         Utility::ForceMountToAlias(mount);
 
@@ -53,6 +52,8 @@ namespace AutoHorse {
         mount.get()->SetPlayerControls(false);
         player->SetAIDriven(true);
         mount.get()->EvaluatePackage(true, false);
+
+        
     }
 
     void InputEventHandler::ForceStopAutopilot() {
@@ -106,15 +107,13 @@ namespace AutoHorse {
             return RE::BSEventNotifyControl::kContinue;
         }
 
-        if (isActive && mount && mount.get()->IsDead()) {
-            ForceStopAutopilot();
-        }
-
         if (a_event[0]) {
             Settings::GetMappedControls(a_event[0]->GetDevice());
         }
 
+        mount.reset();
         if (!player->GetMount(mount)) {
+            if (isActive) { ForceStopAutopilot(); }
             return RE::BSEventNotifyControl::kContinue;
         }
 
@@ -143,7 +142,11 @@ namespace AutoHorse {
                             //Player under AI control
                             return RE::BSEventNotifyControl::kContinue;
                         }
-                        
+                        if (player->GetPlayerRuntimeData().playerFlags.isSprinting) {
+                            //Player sprinting
+                            return RE::BSEventNotifyControl::kContinue;
+                        }
+
                         StartAutopilot();
                         isPaused = false;
                         isActive = true;
@@ -175,7 +178,7 @@ namespace AutoHorse {
                 //Get control map and compare against keypress event
                 if (device == RE::INPUT_DEVICE::kKeyboard) {
 
-                    if (key == Settings::ReturnControls(KeyType::Forward)) {
+                    if (key == Settings::ReturnControls(KeyType::Forward) || key == Settings::ReturnControls(KeyType::Back)) {
                         // Stop autopilot
                         if (isPressed && isActive) {
                             ForceStopAutopilot();
@@ -247,8 +250,8 @@ namespace AutoHorse {
                 }
                 if (abs(x) > Settings::thumbstickThreshold) {
                     // Pause autopilot
-                    StopAutopilot(false);
                     isPaused = true;
+                    StopAutopilot(false);
                     continue;
                 }
                 else if (isPaused) {

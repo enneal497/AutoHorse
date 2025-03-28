@@ -18,6 +18,9 @@ void Settings::LoadSettings() noexcept
 
     ReadFloatSetting(ini, "GamePad", "fThumbstickThreshold", (float&)thumbstickThreshold);
 
+    GStart = SKSE::InputMap::GamepadKeycodeToMask(GStart);
+    GCameraMod = SKSE::InputMap::GamepadKeycodeToMask(GCameraMod);
+
     Settings::GetMappedControls(RE::INPUT_DEVICE::kKeyboard);
 
     logger::info("bShowTutorial?: {}", bShowTutorial);
@@ -41,9 +44,11 @@ void Settings::GetMappedControls(const RE::INPUT_DEVICE &device)
         return;
     }
 
+    cDevice = device;
     auto controlmap = RE::ControlMap::GetSingleton();
 
     ForwardKey = controlmap->GetMappedKey("Forward", device);
+    BackKey = controlmap->GetMappedKey("Back", device);
     LeftKey = controlmap->GetMappedKey("Strafe Left", device);
     RightKey = controlmap->GetMappedKey("Strafe Right", device);
     ActivateKey = controlmap->GetMappedKey("Activate", device);
@@ -67,6 +72,8 @@ uint32_t Settings::ReturnControls(KeyType keytype)
     switch (keytype) {
     case KeyType::Forward:
         return ForwardKey;
+    case KeyType::Back:
+        return BackKey;
     case KeyType::Left:
         return LeftKey;
     case KeyType::Right:

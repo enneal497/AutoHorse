@@ -18,8 +18,14 @@ namespace AutoHorse {
         }
 
         g_tutorial->value = 1;
+        std::string keyName;
 
-        auto keyName = SKSE::InputMap::GetKeyName(Settings::ReturnControls(KeyType::Start));
+        if (Settings::cDevice == RE::INPUT_DEVICE::kGamepad) {
+            keyName = SKSE::InputMap::GetGamepadButtonName(Settings::ReturnControls(KeyType::Start));
+        }
+        else {
+            keyName = SKSE::InputMap::GetKeyName(Settings::ReturnControls(KeyType::Start));
+        }
         auto message = std::format("Press [{}] to start autopilot", keyName);
 
         auto ui = RE::UI::GetSingleton();
